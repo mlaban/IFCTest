@@ -1,0 +1,59 @@
+﻿<Window x:Name="___No_Name_" x:Class="IFCTestApp.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="MainWindow" Height="545.333" Width="525" Loaded="PageLoaded">
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="21*"/>
+            <RowDefinition Height="298*"/>
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="258*"/>
+            <ColumnDefinition Width="259*"/>
+        </Grid.ColumnDefinitions>
+        <TextBlock HorizontalAlignment="Left" TextWrapping="Wrap" Text="Airplane State" VerticalAlignment="Top" Width="258" Height="16"/>
+        <TextBlock HorizontalAlignment="Left" TextWrapping="Wrap" Text="Controls" VerticalAlignment="Top" Width="258" Height="16" Grid.Column="1"/>
+        <StackPanel Grid.Column="1" Margin="5" Grid.Row="1">
+            <Button x:Name="toggleBrakesButton" Content="Brakes" Margin="5" Click="toggleBrakesButton_Click" PreviewMouseDown="toggleBrakesButton_PreviewMouseDown" PreviewMouseUp="toggleBrakesButton_PreviewMouseUp"/>
+            <Button x:Name="parkingBrakeButton" Content="Parking Brakes" Margin="5" Click="parkingBrakeButton_Click" />
+            <Button x:Name="prevCameraButton" Content="Previous Camera" Margin="5" Click="prevCameraButton_Click" />
+            <Button x:Name="nextCameraButton" Content="Next Camera" Margin="5" Click="nextCameraButton_Click" />
+            <Button x:Name="setGearStateButton" Content="Landing Gear" Margin="5" Click="setGearStateButton_Click"/>
+            <Label Content="AP Heading" HorizontalAlignment="Center"></Label>
+            <Slider x:Name="autopilotHeadingSlider" Maximum="360" ValueChanged="autopilotHeadingSlider_ValueChanged" Margin="2"></Slider>
+            <Label Content="Flaps" HorizontalAlignment="Center"></Label>
+            <Slider x:Name="flapsSlider" Maximum="10" Margin="2" TickPlacement="TopLeft" ValueChanged="flapsSlider_ValueChanged" IsSnapToTickEnabled="True"/>
+            <Label Content="Add WPTS" HorizontalAlignment="Center" Margin="90,0,78,0"/>
+            <TextBox x:Name="flightPlanItemsTextBlock" Margin="2" Text="KPAO,KSFO,KOAK,KSCK"></TextBox>
+            <Button x:Name="addFplItems" Content="Add" Margin="5" Click="addFplItems_Click"/>
+            <Button x:Name="clearFplItems" Content="Clear FPL" Margin="5" Click="clearFplItems_Click" />
+            <Button x:Name="activateLegButton" Content="Activate Leg" Margin="5" Click="activateLegButton_Click"/>
+        </StackPanel>
+        <Grid x:Name="airplaneStateGrid" HorizontalAlignment="Left" Height="298" Grid.Row="1" VerticalAlignment="Top" Width="258">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="23*"/>
+                <RowDefinition Height="21*"/>
+                <RowDefinition Height="21*"/>
+                <RowDefinition Height="22*"/>
+                <RowDefinition Height="24*"/>
+                <RowDefinition Height="187*"/>
+            </Grid.RowDefinitions>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition/>
+                <ColumnDefinition/>
+            </Grid.ColumnDefinitions>
+            <TextBlock TextWrapping="Wrap" Text="Airspeed" Margin="2"/>
+            <TextBlock TextWrapping="Wrap" Text="Altitude" Margin="2" Grid.Row="1"/>
+            <TextBlock TextWrapping="Wrap" Text="Heading" Margin="2" Grid.Row="2"/>
+            <TextBlock TextWrapping="Wrap" Text="Vertical Speed" Margin="2" Grid.Row="3"/>
+            <TextBlock TextWrapping="Wrap" Text="Brakes" Margin="2" Grid.Row="4"/>
+
+            <TextBlock TextWrapping="Wrap" Text="{Binding IndicatedAirspeedKts, StringFormat={}{0:#0.0} kts}" Margin="2" Grid.Column="1"/>
+            <TextBlock TextWrapping="Wrap" Text="{Binding AltitudeMSL, StringFormat={}{0:#0.00} ft}" Margin="2" Grid.Row="1" Grid.Column="1"/>
+            <TextBlock TextWrapping="Wrap" Text="{Binding HeadingMagnetic, StringFormat={}{0:#0.0}}" Margin="2" Grid.Row="2" Grid.Column="1"/>
+            <TextBlock TextWrapping="Wrap" Text="{Binding VerticalSpeed, StringFormat={}{0:#0.0} ft/min}" Margin="2" Grid.Row="3" Grid.Column="1"/>
+            <TextBlock TextWrapping="Wrap" Text="{Binding IsBraking, StringFormat={}{0:#0.0} ft/min}" Margin="2" Grid.Row="4" Grid.Column="1"/>
+        </Grid>
+
+    </Grid>
+</Window>
