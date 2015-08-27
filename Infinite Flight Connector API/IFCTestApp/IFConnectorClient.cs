@@ -23,64 +23,76 @@ namespace IFCTestApp
         {
             Console.WriteLine("Connecting to: {0}:{1}", host, port);
 
-            client.Connect(host, port);
-
-            this.NetworkStream = client.GetStream();
-
-            Task.Run(() =>
+            try
             {
 
-                while (true)
+                client.Connect(host, port);
+
+                this.NetworkStream = client.GetStream();
+
+                Task.Run(() =>
                 {
-                    try
-                    {
-                        var commandString = ReadCommand();
-                        //Console.WriteLine("Reply from Server: {0}", commandString);
-                        var response = Serializer.DeserializeJson<APIResponse>(commandString);
 
-                        //Console.WriteLine("Response: {0}", response.Result);
-
-                        CommandReceived(this, new CommandReceivedEventArgs(response, commandString));
-
-                    }
-                    catch (Exception ex)
-                    {
-
-                    }
-                }
-            });
-
-            Task.Run(() =>
-            {
-
-                while (true)
-                {
-                    apiCallQueueLock.EnterReadLock();
-                    var pendingItems = apiCallQueue.Any();
-                    apiCallQueueLock.ExitReadLock();
-                    if (pendingItems)
+                    while (true)
                     {
                         try
                         {
-                            apiCallQueueLock.EnterWriteLock();
-                            var apiCall = apiCallQueue.Dequeue();
-                            apiCallQueueLock.ExitWriteLock();
-                            if (apiCall != null)
-                            {
-                                WriteObject(apiCall);
-                            }
+                            var commandString = ReadCommand();
+                            //Console.WriteLine("Reply from Server: {0}", commandString);
+                            var response = Serializer.DeserializeJson<APIResponse>(commandString);
+
+                            //Console.WriteLine("Response: {0}", response.Result);
+
+                            CommandReceived(this, new CommandReceivedEventArgs(response, commandString));
+
                         }
                         catch (Exception ex)
                         {
-                            Console.WriteLine("Error Sending Command: {0}", ex);
+
                         }
                     }
-                    else
+                });
+
+                Task.Run(() =>
+                {
+
+                    while (true)
                     {
-                        Thread.Sleep(60);
+                        apiCallQueueLock.EnterReadLock();
+                        var pendingItems = apiCallQueue.Any();
+                        apiCallQueueLock.ExitReadLock();
+                        if (pendingItems)
+                        {
+                            try
+                            {
+                                apiCallQueueLock.EnterWriteLock();
+                                var apiCall = apiCallQueue.Dequeue();
+                                apiCallQueueLock.ExitWriteLock();
+                                if (apiCall != null)
+                                {
+                                    WriteObject(apiCall);
+                                }
+                            }
+                            catch (Exception ex)
+                            {
+                                Console.WriteLine("Error Sending Command: {0}", ex);
+                            }
+                        }
+                        else
+                        {
+                            Thread.Sleep(60);
+                        }
                     }
-                }
-            });
+                });
+
+            }
+            catch (System.Net.Sockets.SocketException e)
+            {
+
+                Console.WriteLine("Caught exception: {0}", e);
+
+            }
+
         }
 
         #region Networking
@@ -115,7 +127,7 @@ namespace IFCTestApp
             byte[] size = BitConverter.GetBytes(data.Length);
             NetworkStream.Write(size, 0, size.Length);
             NetworkStream.Write(data, 0, data.Length);
-        } 
+        }
         #endregion
 
         internal void SetValue(string parameter, string value)
@@ -162,7 +174,7 @@ namespace IFCTestApp
     {
         public APIResponse Response { get; set; }
         public string CommandString { get; set; }
-        
+
         public CommandReceivedEventArgs(APIResponse response, string commandString)
         {
             // TODO: Complete member initialization
