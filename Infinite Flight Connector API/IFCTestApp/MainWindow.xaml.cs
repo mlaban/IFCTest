@@ -143,5 +143,135 @@ namespace IFCTestApp
         {
             client.ExecuteCommand("Commands.FlightPlan.ActivateLeg", new CallParameter[] { new CallParameter { Name = "Index", Value = "3" } });
         }
+
+        private void aileronsSlider_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
+        {
+            client.ExecuteCommand("NetworkJoystick.SetAxisValue", new CallParameter[] 
+            { 
+                new CallParameter 
+                {
+                    Name = "0", // axis index
+                    Value = aileronsSlider.Value.ToString()
+                } 
+            });
+        }
+        
+        private void Button_PreviewMouseDown(object sender, MouseButtonEventArgs e)
+        {
+            Button button = sender as Button;
+
+            client.ExecuteCommand("NetworkJoystick.SetButtonState", new CallParameter[] 
+            {
+                new CallParameter 
+                { 
+                    Name = button.Content.ToString(),  // button index
+                    Value = "Down"
+                }
+            });
+        }
+
+        private void Button_PreviewMouseUp(object sender, MouseButtonEventArgs e)
+        {
+            Button button = sender as Button;
+
+            client.ExecuteCommand("NetworkJoystick.SetButtonState", new CallParameter[] 
+            {
+                new CallParameter 
+                { 
+                    Name = button.Content.ToString(),  // button index
+                    Value = "Up"
+                }
+            });
+        }
+
+        private void POVButton_PreviewMouseDown(object sender, MouseButtonEventArgs e)
+        {
+            var button = sender as Button;
+            var type = button.Content.ToString();
+
+            var xValue = 0;
+            var yValue = 0;
+
+            if (type == "Up")
+            {
+                xValue = 0;
+                yValue = 1;
+            }
+            else if (type == "Down")
+            {
+                xValue = 0;
+                yValue = -1;
+            }
+            else if (type == "Left")
+            {
+                xValue = -1;
+                yValue = 0;
+            }
+            else if (type == "Right")
+            {
+                xValue = 1;
+                yValue = 0;
+            }
+
+            client.ExecuteCommand("NetworkJoystick.SetPOVState", new CallParameter[] 
+                {
+                    new CallParameter 
+                    { 
+                        Name = "X",
+                        Value = xValue.ToString()
+                    },
+                    new CallParameter 
+                    { 
+                        Name = "Y",
+                        Value = yValue.ToString()
+                    }
+                });
+
+
+        }
+
+        private void POVButton_PreviewMouseUp(object sender, MouseButtonEventArgs e)
+        {
+            var button = sender as Button;
+            var type = button.Content.ToString();
+
+            var xValue = 0;
+            var yValue = 0;
+
+            if (type == "Up")
+            {
+                xValue = 0;
+                yValue = 0;
+            }
+            else if (type == "Down")
+            {
+                xValue = 0;
+                yValue = 0;
+            }
+            else if (type == "Left")
+            {
+                xValue = 0;
+                yValue = 0;
+            }
+            else if (type == "Right")
+            {
+                xValue = 0;
+                yValue = 0;
+            }
+
+            client.ExecuteCommand("NetworkJoystick.SetPOVState", new CallParameter[] 
+                {
+                    new CallParameter 
+                    { 
+                        Name = "X",
+                        Value = xValue.ToString()
+                    },
+                    new CallParameter 
+                    { 
+                        Name = "Y",
+                        Value = yValue.ToString()
+                    }
+                });
+        }
     }
 }

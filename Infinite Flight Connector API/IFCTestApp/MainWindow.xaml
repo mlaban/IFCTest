@@ -4,8 +4,9 @@
         Title="MainWindow" Height="545.333" Width="525" Loaded="PageLoaded">
     <Grid>
         <Grid.RowDefinitions>
-            <RowDefinition Height="21*"/>
-            <RowDefinition Height="298*"/>
+            <RowDefinition Height="34*"/>
+            <RowDefinition Height="205*"/>
+            <RowDefinition Height="275*"/>
         </Grid.RowDefinitions>
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="258*"/>
@@ -13,7 +14,7 @@
         </Grid.ColumnDefinitions>
         <TextBlock HorizontalAlignment="Left" TextWrapping="Wrap" Text="Airplane State" VerticalAlignment="Top" Width="258" Height="16"/>
         <TextBlock HorizontalAlignment="Left" TextWrapping="Wrap" Text="Controls" VerticalAlignment="Top" Width="258" Height="16" Grid.Column="1"/>
-        <StackPanel Grid.Column="1" Margin="5" Grid.Row="1">
+        <StackPanel Grid.Column="1" Margin="5" Grid.Row="1" Grid.RowSpan="2">
             <Button x:Name="toggleBrakesButton" Content="Brakes" Margin="5" Click="toggleBrakesButton_Click" PreviewMouseDown="toggleBrakesButton_PreviewMouseDown" PreviewMouseUp="toggleBrakesButton_PreviewMouseUp"/>
             <Button x:Name="parkingBrakeButton" Content="Parking Brakes" Margin="5" Click="parkingBrakeButton_Click" />
             <Button x:Name="prevCameraButton" Content="Previous Camera" Margin="5" Click="prevCameraButton_Click" />
@@ -29,14 +30,14 @@
             <Button x:Name="clearFplItems" Content="Clear FPL" Margin="5" Click="clearFplItems_Click" />
             <Button x:Name="activateLegButton" Content="Activate Leg" Margin="5" Click="activateLegButton_Click"/>
         </StackPanel>
-        <Grid x:Name="airplaneStateGrid" HorizontalAlignment="Left" Height="298" Grid.Row="1" VerticalAlignment="Top" Width="258">
+        <Grid x:Name="airplaneStateGrid" HorizontalAlignment="Left" Height="205" Grid.Row="1" VerticalAlignment="Top" Width="258">
             <Grid.RowDefinitions>
-                <RowDefinition Height="23*"/>
-                <RowDefinition Height="21*"/>
-                <RowDefinition Height="21*"/>
-                <RowDefinition Height="22*"/>
-                <RowDefinition Height="24*"/>
-                <RowDefinition Height="187*"/>
+                <RowDefinition Height="8*"/>
+                <RowDefinition Height="7*"/>
+                <RowDefinition Height="7*"/>
+                <RowDefinition Height="12*"/>
+                <RowDefinition Height="10*"/>
+                <RowDefinition Height="Auto"/>
             </Grid.RowDefinitions>
             <Grid.ColumnDefinitions>
                 <ColumnDefinition/>
@@ -53,6 +54,45 @@
             <TextBlock TextWrapping="Wrap" Text="{Binding HeadingMagnetic, StringFormat={}{0:#0.0}}" Margin="2" Grid.Row="2" Grid.Column="1"/>
             <TextBlock TextWrapping="Wrap" Text="{Binding VerticalSpeed, StringFormat={}{0:#0.0} ft/min}" Margin="2" Grid.Row="3" Grid.Column="1"/>
             <TextBlock TextWrapping="Wrap" Text="{Binding IsBraking, StringFormat={}{0:#0.0} ft/min}" Margin="2" Grid.Row="4" Grid.Column="1"/>
+        </Grid>
+        <Grid HorizontalAlignment="Left" Height="270" Grid.Row="2" VerticalAlignment="Top" Width="258">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition/>
+                <ColumnDefinition/>
+            </Grid.ColumnDefinitions>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="26*"/>
+                <RowDefinition Height="33*"/>
+                <RowDefinition Height="111*"/>
+                <RowDefinition Height="100*"/>
+            </Grid.RowDefinitions>
+            <Slider x:Name="aileronsSlider" Margin="0" ValueChanged="aileronsSlider_ValueChanged" Minimum="-1000" Maximum="1000" LargeChange="100" SmallChange="10" TickFrequency="100" TickPlacement="TopLeft" Grid.ColumnSpan="2"/>
+            <WrapPanel HorizontalAlignment="Left" Height="244" Grid.Row="1" VerticalAlignment="Top" Width="258" Grid.RowSpan="3" Grid.ColumnSpan="2">
+                <Button Content="1" Width="25" Margin="5" PreviewMouseDown="Button_PreviewMouseDown" PreviewMouseUp="Button_PreviewMouseUp"/>
+                <Button Content="2" Width="25" Margin="5" PreviewMouseDown="Button_PreviewMouseDown" PreviewMouseUp="Button_PreviewMouseUp"/>
+                <Button Content="3" Width="25" Margin="5" PreviewMouseDown="Button_PreviewMouseDown" PreviewMouseUp="Button_PreviewMouseUp"/>
+                <Button Content="4" Width="25" Margin="5" PreviewMouseDown="Button_PreviewMouseDown" PreviewMouseUp="Button_PreviewMouseUp"/>
+                <Button Content="5" Width="25" Margin="5" PreviewMouseDown="Button_PreviewMouseDown" PreviewMouseUp="Button_PreviewMouseUp"/>
+                <Button Content="6" Width="25" Margin="5" PreviewMouseDown="Button_PreviewMouseDown" PreviewMouseUp="Button_PreviewMouseUp"/>
+                <Button Content="7" Width="25" Margin="5" PreviewMouseDown="Button_PreviewMouseDown" PreviewMouseUp="Button_PreviewMouseUp"/>
+            </WrapPanel>
+            <Grid Grid.Row="2" Margin="5">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="33*"/>
+                    <ColumnDefinition Width="33*"/>
+                    <ColumnDefinition Width="33*"/>
+                </Grid.ColumnDefinitions>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="33*"/>
+                    <RowDefinition Height="33*"/>
+                    <RowDefinition Height="33*"/>
+                </Grid.RowDefinitions>
+                <Button Content="Up" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Grid.Column="1" Grid.Row="0" Margin="3" x:Name="upPOVButton"         PreviewMouseUp="POVButton_PreviewMouseUp" PreviewMouseDown="POVButton_PreviewMouseDown"/>
+                <Button Content="Right" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Grid.Column="2" Grid.Row="1" Margin="3" x:Name="rightPOVButton"   PreviewMouseUp="POVButton_PreviewMouseUp" PreviewMouseDown="POVButton_PreviewMouseDown"/>
+                <Button Content="Down" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Grid.Column="1" Grid.Row="2" Margin="2" x:Name="downPOVButton"     PreviewMouseUp="POVButton_PreviewMouseUp" PreviewMouseDown="POVButton_PreviewMouseDown"/>
+                <Button Content="Left" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Grid.Column="0" Grid.Row="1" Margin="3" x:Name="leftPOVButton"     PreviewMouseUp="POVButton_PreviewMouseUp" PreviewMouseDown="POVButton_PreviewMouseDown"/>
+                
+            </Grid>
         </Grid>
 
     </Grid>
