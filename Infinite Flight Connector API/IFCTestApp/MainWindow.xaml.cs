@@ -1,7 +1,12 @@
-﻿using Fds.IFAPI;
+﻿///
+/// This is a sample project for the Infinite Flight API
+/// 
+
+using Fds.IFAPI;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -23,6 +28,7 @@ namespace IFCTestApp
     public partial class MainWindow : Window
     {
         IFConnectorClient client = new IFConnectorClient();
+        BroadcastReceiver receiver = new BroadcastReceiver();
 
         public MainWindow()
         {
@@ -30,13 +36,46 @@ namespace IFCTestApp
 
             airplaneStateGrid.DataContext = null;
             airplaneStateGrid.DataContext = new APIAircraftState();
+
+            mainTabControl.Visibility = System.Windows.Visibility.Collapsed;
         }
 
-        private void PageLoaded(object sender, RoutedEventArgs e)
+        bool serverInfoReceived = false;
+
+        void receiver_DataReceived(object sender, EventArgs e)
         {
-            client.Connect();
+            byte[] data = (byte[])sender;
+
+            var apiServerInfo = Serializer.DeserializeJson<APIServerInfo>(UTF8Encoding.UTF8.GetString(data));
+
+            if (apiServerInfo != null)
+            {
+                Console.WriteLine("Received Server Info from: {0}:{1}", apiServerInfo.Address, apiServerInfo.Port);
+                serverInfoReceived = true;
+                receiver.Stop();
+                Dispatcher.BeginInvoke((Action)(() => 
+                {
+                    Connect(IPAddress.Parse(apiServerInfo.Address), apiServerInfo.Port);
+                }));
+            }
+            else
+            {
+                Console.WriteLine("Invalid Server Info Received");
+            }
+        }
+
+        private void Connect(IPAddress iPAddress, int port)
+        {
+            client.Connect(iPAddress.ToString(), port);
+
+            connectionStateTextBlock.Text = String.Format("Connected ({0}:{1})", iPAddress, port);
+
+            overlayGrid.Visibility = System.Windows.Visibility.Collapsed;
+            mainTabControl.Visibility = System.Windows.Visibility.Visible;
 
             client.CommandReceived += client_CommandReceived;
+
+            client.SendCommand(new APICall { Command = "InfiniteFlight.GetStatus" });
 
             Task.Run(() =>
             {
@@ -56,6 +95,32 @@ namespace IFCTestApp
                     }
                 }
             });
+
+            Task.Run(() =>
+            {
+
+                while (true)
+                {
+                    try
+                    {
+                        client.SendCommand(new APICall { Command = "Live.GetTraffic" });
+                        client.SendCommand(new APICall { Command = "Live.ATCFacilities" });
+
+                        Thread.Sleep(5000);
+
+                    }
+                    catch (Exception ex)
+                    {
+
+                    }
+                }
+            });
+        }
+
+        private void PageLoaded(object sender, RoutedEventArgs e)
+        {
+            receiver.DataReceived += receiver_DataReceived;
+            receiver.StartListening();
         }
 
         void client_CommandReceived(object sender, CommandReceivedEventArgs e)
@@ -76,6 +141,26 @@ namespace IFCTestApp
                     var state = Serializer.DeserializeJson<GetValueResponse>(e.CommandString);
 
                     Console.WriteLine("{0} -> {1}", state.Parameters[0].Name, state.Parameters[0].Value);
+                }
+                else if (type == typeof(LiveAirplaneList))
+                {
+                    var airplaneList = Serializer.DeserializeJson<LiveAirplaneList>(e.CommandString);
+
+                    airplaneDataGrid.ItemsSource = airplaneList.Airplanes;
+                }
+                else if (type == typeof(FacilityList))
+                {
+                    var facilityList = Serializer.DeserializeJson<FacilityList>(e.CommandString);
+
+                    facilitiesDataGrid.ItemsSource = facilityList.Facilities;
+                }
+                else if (type == typeof(IFAPIStatus))
+                {
+                    var status = Serializer.DeserializeJson<IFAPIStatus>(e.CommandString);
+
+                    versionTextBlock.Text = status.AppVersion;
+                    userNameTextBlock.Text = status.LoggedInUser;
+                    
                 }
             }));
             
@@ -272,6 +357,37 @@ namespace IFCTestApp
                         Value = yValue.ToString()
                     }
                 });
+        }
+        
+        private void checkbox_Checked(object sender, RoutedEventArgs e)
+        {
+            var checkbox = sender as CheckBox;
+
+            if (checkbox.Equals(altitudeStateCheckbox))
+                client.ExecuteCommand("Commands.Autopilot.SetAltitudeState", new CallParameter[] { new CallParameter { Value = checkbox.IsChecked.ToString() } });
+            if (checkbox.Equals(headingStateCheckbox))
+                client.ExecuteCommand("Commands.Autopilot.SetHeadingState", new CallParameter[] { new CallParameter { Value = checkbox.IsChecked.ToString() } });
+            if (checkbox.Equals(verticalSpeedStateCheckbox))
+                client.ExecuteCommand("Commands.Autopilot.SetVSState", new CallParameter[] { new CallParameter { Value = checkbox.IsChecked.ToString() } });
+            if (checkbox.Equals(speedStateCheckbox))
+                client.ExecuteCommand("Commands.Autopilot.SetSpeedState", new CallParameter[] { new CallParameter { Value = checkbox.IsChecked.ToString() } });
+            if (checkbox.Equals(apprStateCheckbox))
+                client.ExecuteCommand("Commands.Autopilot.SetApproachModeState", new CallParameter[] { new CallParameter { Value = checkbox.IsChecked.ToString() } });
+        }
+
+        private void speedTextBlock_TextChanged(object sender, TextChangedEventArgs e)
+        {
+            var textBlock = sender as TextBox;
+
+            if (textBlock.Equals(speedTextBlock))
+                client.ExecuteCommand("Commands.Autopilot.SetSpeed", new CallParameter[] { new CallParameter { Value = textBlock.Text.ToString() } });
+            if (textBlock.Equals(altitudeTextBlock))
+                client.ExecuteCommand("Commands.Autopilot.SetAltitude", new CallParameter[] { new CallParameter { Value = textBlock.Text.ToString() } });
+            if (textBlock.Equals(verticalSpeedTextBlock))
+                client.ExecuteCommand("Commands.Autopilot.SetVS", new CallParameter[] { new CallParameter { Value = textBlock.Text.ToString() } });
+            if (textBlock.Equals(headingTextBlock))
+                client.ExecuteCommand("Commands.Autopilot.SetHeading", new CallParameter[] { new CallParameter { Value = textBlock.Text.ToString() } });
+
         }
     }
 }

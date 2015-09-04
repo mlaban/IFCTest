@@ -27,6 +27,7 @@ namespace IFCTestApp
             {
 
                 client.Connect(host, port);
+                client.NoDelay = true;
 
                 this.NetworkStream = client.GetStream();
 

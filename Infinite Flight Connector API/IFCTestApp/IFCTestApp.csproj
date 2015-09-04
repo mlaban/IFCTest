@@ -57,6 +57,7 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="BroadcastReceiver.cs" />
     <Compile Include="DataTypes.cs" />
     <Compile Include="Serializer.cs" />
     <Page Include="MainWindow.xaml">

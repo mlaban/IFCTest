@@ -8,6 +8,26 @@ using System.Threading.Tasks;
 namespace Fds.IFAPI
 {
     [DataContract]
+    public class APIServerInfo
+    {
+        [DataMember]
+        public string Address { get; set; }
+        [DataMember]
+        public int Port { get; set; }
+    }
+
+    [DataContract]
+    public class IFAPIStatus : APIResponse
+    {
+        [DataMember]
+        public string AppVersion { get; set; }
+        [DataMember]
+        public string ApiVersion { get; set; }
+        [DataMember]
+        public string LoggedInUser { get; set; }
+    }
+
+    [DataContract]
     public enum APIResult
     {
         [EnumMember]
@@ -29,6 +49,87 @@ namespace Fds.IFAPI
         {
             Type = this.GetType().ToString();
         }
+    }
+    
+    [DataContract]
+    public class FacilityList : APIResponse
+    {
+        [DataMember]
+        public FacilityInfo[] Facilities { get; set; }
+    }
+
+    [DataContract]
+    public class FacilityInfo
+    {
+        [DataMember]
+        public string Type { get; set; }
+        [DataMember]
+        public string Name { get; set; }
+        [DataMember]
+        public int IntegerFrequency { get; set; }
+        [DataMember]
+        public string AirportName { get; set; }
+        [DataMember]
+        public Guid ID { get; set; }
+        [DataMember]
+        public string Username { get; set; }
+        [DataMember]
+        public Guid UserID { get; set; }
+        [DataMember]
+        public DateTime StartTimeUTC { get; set; }
+    }
+    
+    [DataContract]
+    public class AirplaneInfo
+    {
+        [DataMember]
+        public double Latitude { get; set; }
+
+        [DataMember]
+        public double Longitude { get; set; }
+
+        [DataMember]
+        public float Altitude { get; set; }
+
+        [DataMember]
+        public float VerticalSpeed { get; set; }
+
+        [DataMember]
+        public double Heading { get; set; }
+
+        [DataMember]
+        public double Velocity { get; set; }
+
+        [DataMember]
+        public Guid ID { get; set; }
+
+        [DataMember]
+        public string Name { get; set; }
+
+        [DataMember]
+        public string CallSign { get; set; }
+
+        [DataMember]
+        public Guid AircraftID { get; set; }
+
+        [DataMember]
+        public Guid LiveryID { get; set; }
+
+        [DataMember]
+        public string DeviceName { get; set; }
+
+        [DataMember]
+        public Guid FlightID { get; set; }
+
+        [DataMember]
+        public string AppVersion { get; set; }
+    }
+
+    [DataContract]
+    public class LiveAirplaneList : APIResponse
+    {
+        [DataMember]
+        public AirplaneInfo[] Airplanes { get; set; }
     }
 
     [DataContract]
