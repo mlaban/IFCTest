@@ -42,8 +42,6 @@ namespace IFCTestApp
                             //Console.WriteLine("Reply from Server: {0}", commandString);
                             var response = Serializer.DeserializeJson<APIResponse>(commandString);
 
-                            //Console.WriteLine("Response: {0}", response.Result);
-
                             CommandReceived(this, new CommandReceivedEventArgs(response, commandString));
 
                         }

@@ -28,11 +28,6 @@
                         <Slider x:Name="autopilotHeadingSlider" Maximum="360" ValueChanged="autopilotHeadingSlider_ValueChanged" Margin="2"/>
                         <Label Content="Flaps" HorizontalAlignment="Center"/>
                         <Slider x:Name="flapsSlider" Maximum="10" Margin="2" TickPlacement="TopLeft" ValueChanged="flapsSlider_ValueChanged" IsSnapToTickEnabled="True"/>
-                        <Label Content="Add WPTS" HorizontalAlignment="Center" Margin="90,0,78,0"/>
-                        <TextBox x:Name="flightPlanItemsTextBlock" Margin="2" Text="KPAO,KSFO,KOAK,KSCK"/>
-                        <Button x:Name="addFplItems" Content="Add" Margin="5" Click="addFplItems_Click"/>
-                        <Button x:Name="clearFplItems" Content="Clear FPL" Margin="5" Click="clearFplItems_Click" />
-                        <Button x:Name="activateLegButton" Content="Activate Leg" Margin="5" Click="activateLegButton_Click"/>
                     </StackPanel>
                     <Grid x:Name="airplaneStateGrid" HorizontalAlignment="Left" Height="205" Grid.Row="1" VerticalAlignment="Top" Width="258">
                         <Grid.RowDefinitions>
@@ -104,7 +99,23 @@
                 <DataGrid x:Name="airplaneDataGrid"/>
             </TabItem>
             <TabItem Header="Live ATC">
-                <DataGrid x:Name="facilitiesDataGrid"/>
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="455*"/>
+                        <RowDefinition Height="31*"/>
+                    </Grid.RowDefinitions>
+                    <DataGrid x:Name="facilitiesDataGrid"/>
+                    <Button x:Name="tuneButton" Content="Tune" HorizontalAlignment="Left" Margin="5,6,0,0" Grid.Row="1" VerticalAlignment="Top" Width="75" Click="tuneButton_Click"/>
+                </Grid>
+            </TabItem>
+            <TabItem Header="ATC Window">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="455*"/>
+                        <RowDefinition Height="31*"/>
+                    </Grid.RowDefinitions>
+                    <DataGrid x:Name="atcMessagesDataGrid" SelectionChanged="atcMessagesDataGrid_SelectionChanged"/>
+                </Grid>
             </TabItem>
             <TabItem Header="Autopilot">
                 <Grid Margin="5">
@@ -132,6 +143,34 @@
                     <TextBox x:Name="speedTextBlock" Grid.Column="2" Grid.Row="3" Margin="2" TextChanged="speedTextBlock_TextChanged"/>
                 </Grid>
             </TabItem>
+            <TabItem Header="ATC Messages">
+                <Grid Margin="5">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="15*"/>
+                        <RowDefinition Height="34*"/>
+                        <RowDefinition Height="189*"/>
+                    </Grid.RowDefinitions>
+                    <Button x:Name="enableATCMessagesButton" Content="Enable ATC Messages" Margin="5" Click="enableATCMessagesButton_Click"/>
+                    <DataGrid x:Name="frequenciesDataGrid" Grid.Row="1" Margin="5"></DataGrid>
+                    <ListBox x:Name="atcMessagesListBox" Margin="0,0,0,0" Grid.Row="2"/>
+                </Grid>
+            </TabItem>
+            <TabItem Header="Camera">
+                <StackPanel Margin="5">
+                    <Button x:Name="setCameraPosition" Content="Set Camera Position" Click="setCameraPosition_Click"/>
+                </StackPanel>
+            </TabItem>
+            <TabItem Header="Flight Plan">
+                <StackPanel Margin="5">
+                    <Label Content="Add WPTS" HorizontalAlignment="Center" Margin="96,0,339,0"/>
+                    <TextBox x:Name="flightPlanItemsTextBlock" Margin="2,2,257,2" Text="KPAO,KSFO,KOAK,KSCK"/>
+                    <Button x:Name="getFplButton" Content="Get FPL" Margin="5,5,260,5" Click="getFplButton_Click"/>
+                    <Button x:Name="addFplItems" Content="Add" Margin="5,5,260,5" Click="addFplItems_Click"/>
+                    <Button x:Name="clearFplItems" Content="Clear FPL" Margin="5,5,260,5" Click="clearFplItems_Click" />
+                    <Button x:Name="activateLegButton" Content="Activate Leg" Margin="5,5,260,5" Click="activateLegButton_Click"/>
+
+                </StackPanel>
+            </TabItem>
             <TabItem Header="Status">
                 <Grid Margin="5">
                     <Grid.ColumnDefinitions>
@@ -150,7 +189,7 @@
                     <TextBlock x:Name="versionTextBlock"  Text="Unknown" HorizontalAlignment="Right" Grid.Column="1"/>
                     <TextBlock x:Name="userNameTextBlock"  Text="Unknown" HorizontalAlignment="Right" Grid.Row="1" Grid.Column="1"/>
                     <TextBlock x:Name="connectionStateTextBlock"  Text="Disconnected" HorizontalAlignment="Right" Grid.Row="2" Grid.Column="1"/>
-                                 
+
                 </Grid>
             </TabItem>
         </TabControl>

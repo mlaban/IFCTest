@@ -76,6 +76,7 @@ namespace IFCTestApp
             client.CommandReceived += client_CommandReceived;
 
             client.SendCommand(new APICall { Command = "InfiniteFlight.GetStatus" });
+            client.SendCommand(new APICall { Command = "Live.EnableATCMessageListUpdated" });            
 
             Task.Run(() =>
             {
@@ -159,17 +160,42 @@ namespace IFCTestApp
                     var status = Serializer.DeserializeJson<IFAPIStatus>(e.CommandString);
 
                     versionTextBlock.Text = status.AppVersion;
-                    userNameTextBlock.Text = status.LoggedInUser;
-                    
+                    userNameTextBlock.Text = status.LoggedInUser;                    
                 }
-            }));
-            
+                else if (type == typeof(APIATCMessage))
+                {
+                    var msg = Serializer.DeserializeJson<APIATCMessage>(e.CommandString);
+
+                    atcMessagesListBox.Items.Add(msg.Message);
+
+                    client.ExecuteCommand("Live.GetCurrentCOMFrequencies");
+                }
+                else if (type == typeof(APIFrequencyInfoList))
+                {
+                    var msg = Serializer.DeserializeJson<APIFrequencyInfoList>(e.CommandString);
+                    frequenciesDataGrid.ItemsSource = msg.Frequencies;
+                }
+                else if (type == typeof(ATCMessageList))
+                {
+                    var msg = Serializer.DeserializeJson<ATCMessageList>(e.CommandString);
+                    atcMessagesDataGrid.ItemsSource = msg.ATCMessages;
+                }
+                else if (type == typeof(APIFlightPlan))
+                {
+                    var msg = Serializer.DeserializeJson<APIFlightPlan>(e.CommandString);
+                    Console.WriteLine("Flight Plan: {0} items", msg.Waypoints.Length);
+
+                    foreach (var item in msg.Waypoints)
+                    {
+                        Console.WriteLine(" -> {0} {1} - {2}, {3}", item.Name, item.Code, item.Latitude, item.Longitude);
+                    }
+                }             
+            }));            
         }
 
         private void toggleBrakesButton_Click(object sender, RoutedEventArgs e)
         {
             //client.SetValue("Aircraft.Systems.Autopilot.EnableHeading", "True");
-//            
         }
         
         private void toggleBrakesButton_PreviewMouseDown(object sender, MouseButtonEventArgs e)
@@ -227,6 +253,11 @@ namespace IFCTestApp
         private void activateLegButton_Click(object sender, RoutedEventArgs e)        
         {
             client.ExecuteCommand("Commands.FlightPlan.ActivateLeg", new CallParameter[] { new CallParameter { Name = "Index", Value = "3" } });
+        }
+
+        private void getFplButton_Click(object sender, RoutedEventArgs e)
+        {
+            client.ExecuteCommand("FlightPlan.GetFlightPlan");
         }
 
         private void aileronsSlider_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
@@ -388,6 +419,40 @@ namespace IFCTestApp
             if (textBlock.Equals(headingTextBlock))
                 client.ExecuteCommand("Commands.Autopilot.SetHeading", new CallParameter[] { new CallParameter { Value = textBlock.Text.ToString() } });
 
+        }
+
+        private void enableATCMessagesButton_Click(object sender, RoutedEventArgs e)
+        {
+            client.ExecuteCommand("Live.EnableATCMessageNotification");
+        }
+
+        private void tuneButton_Click(object sender, RoutedEventArgs e)
+        {
+            var facilityInfo = facilitiesDataGrid.SelectedItem as FacilityInfo;
+
+            if (facilityInfo != null)
+            {
+                client.ExecuteCommand("Commands.Live.SetCOMFrequencies", new CallParameter[] { new CallParameter { Value = facilityInfo.ID.ToString() } });
+            }
+        }
+
+        private void atcMessagesDataGrid_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            var command = string.Format("Commands.ATCEntry{0}", atcMessagesDataGrid.SelectedIndex + 1);
+
+            client.ExecuteCommand(command);            
+        }
+
+        private void setCameraPosition_Click(object sender, RoutedEventArgs e)
+        {
+            var command = "Cameras.SetATCCameraPosition";
+            
+            client.ExecuteCommand(command, new CallParameter[]
+            {
+                new CallParameter { Name = "Latitude", Value = "33.950681" }, 
+                new CallParameter { Name = "Longitude", Value = "-118.401479" },
+                new CallParameter { Name = "Altitude", Value = "-110" }
+            });    
         }
     }
 }
