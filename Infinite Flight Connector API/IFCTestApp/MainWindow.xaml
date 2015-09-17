@@ -178,18 +178,30 @@
                         <ColumnDefinition Width="389*"/>
                     </Grid.ColumnDefinitions>
                     <Grid.RowDefinitions>
+                        <RowDefinition Height="21*"/>
+                        <RowDefinition Height="20*"/>
+                        <RowDefinition Height="21*"/>
+                        <RowDefinition Height="20*"/>
                         <RowDefinition Height="22*"/>
                         <RowDefinition Height="22*"/>
-                        <RowDefinition Height="22*"/>
-                        <RowDefinition Height="420*"/>
+                        <RowDefinition Height="330*"/>
                     </Grid.RowDefinitions>
                     <TextBlock Text="Version"/>
                     <TextBlock Text="Live User" Grid.Row="1"/>
                     <TextBlock Text="Connection Status" Grid.Row="2"/>
-                    <TextBlock x:Name="versionTextBlock"  Text="Unknown" HorizontalAlignment="Right" Grid.Column="1"/>
-                    <TextBlock x:Name="userNameTextBlock"  Text="Unknown" HorizontalAlignment="Right" Grid.Row="1" Grid.Column="1"/>
-                    <TextBlock x:Name="connectionStateTextBlock"  Text="Disconnected" HorizontalAlignment="Right" Grid.Row="2" Grid.Column="1"/>
+                    <TextBlock x:Name="versionTextBlock"  Text="Unknown" HorizontalAlignment="Right" Grid.Column="1" Margin="0,0,-1,0" Width="390" TextAlignment="Right"/>
+                    <TextBlock x:Name="userNameTextBlock"  Text="Unknown" HorizontalAlignment="Right" Grid.Row="1" Grid.Column="1" Margin="0,0,-1,0" Width="390" TextAlignment="Right"/>
+                    <TextBlock x:Name="connectionStateTextBlock"  Text="Disconnected" HorizontalAlignment="Right" Grid.Row="2" Grid.Column="1" Width="389" TextAlignment="Right"/>
+                    <TextBlock Text="Device Name" Grid.Row="3"/>
+                    <TextBlock x:Name="deviceNameTextBlock"  Text="Unknown" HorizontalAlignment="Right" Grid.Row="3" Grid.Column="1" Width="389" TextAlignment="Right"/>
+                    <TextBlock Text="Display Resolution" Grid.Row="4"/>
+                    <TextBlock x:Name="displayResolutionTextBlock"  Text="Unknown" HorizontalAlignment="Right" Grid.Row="4" Grid.Column="1" Width="389" TextAlignment="Right"/>
 
+                </Grid>
+            </TabItem>
+            <TabItem Header="Mouse">
+                <Grid>
+                    <Label Content="Mouse Pad" Margin="0" x:Name="captureMouseButton" PreviewMouseMove="captureMouseButton_PreviewMouseMove" PreviewMouseUp="captureMouseButton_PreviewMouseUp" PreviewMouseDown="captureMouseButton_PreviewMouseDown"/>
                 </Grid>
             </TabItem>
         </TabControl>

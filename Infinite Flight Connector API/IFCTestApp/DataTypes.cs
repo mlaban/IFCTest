@@ -83,6 +83,12 @@ namespace Fds.IFAPI
         public string ApiVersion { get; set; }
         [DataMember]
         public string LoggedInUser { get; set; }
+        [DataMember]
+        public int DisplayWidth { get; set; }
+        [DataMember]
+        public int DisplayHeight { get; set; }
+        [DataMember]
+        public string DeviceName { get; set; }
     }
 
     [DataContract]

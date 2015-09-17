@@ -160,7 +160,9 @@ namespace IFCTestApp
                     var status = Serializer.DeserializeJson<IFAPIStatus>(e.CommandString);
 
                     versionTextBlock.Text = status.AppVersion;
-                    userNameTextBlock.Text = status.LoggedInUser;                    
+                    userNameTextBlock.Text = status.LoggedInUser;
+                    deviceNameTextBlock.Text = status.DeviceName;
+                    displayResolutionTextBlock.Text = string.Format("{0}x{1}", status.DisplayWidth, status.DisplayHeight);
                 }
                 else if (type == typeof(APIATCMessage))
                 {
@@ -453,6 +455,54 @@ namespace IFCTestApp
                 new CallParameter { Name = "Longitude", Value = "-118.401479" },
                 new CallParameter { Name = "Altitude", Value = "-110" }
             });    
+        }
+
+        Point lastMousePosition = new Point();
+
+        private void captureMouseButton_Click(object sender, RoutedEventArgs e)
+        {
+           
+        }
+
+        private void captureMouseButton_PreviewMouseMove(object sender, MouseEventArgs e)
+        {
+            var position = e.GetPosition(this);
+
+            var command = "NetworkMouse.SetPosition";
+            
+            client.ExecuteCommand(command, new CallParameter[]
+            {
+                new CallParameter { Name = "X", Value = ((int)position.X).ToString() }, 
+                new CallParameter { Name = "Y", Value = ((int)position.Y).ToString() }
+            });
+
+            lastMousePosition = position;
+        }
+
+        private void captureMouseButton_PreviewMouseUp(object sender, MouseButtonEventArgs e)
+        {
+            var position = lastMousePosition;
+
+            var command = "NetworkMouse.MouseUp";
+
+            client.ExecuteCommand(command, new CallParameter[]
+            {
+                new CallParameter { Name = "X", Value = ((int)position.X).ToString() }, 
+                new CallParameter { Name = "Y", Value = ((int)position.Y).ToString() }
+            });   
+        }
+
+        private void captureMouseButton_PreviewMouseDown(object sender, MouseButtonEventArgs e)
+        {
+            var position = lastMousePosition;
+
+            var command = "NetworkMouse.MouseDown";
+
+            client.ExecuteCommand(command, new CallParameter[]
+            {
+                new CallParameter { Name = "X", Value = ((int)position.X).ToString() }, 
+                new CallParameter { Name = "Y", Value = ((int)position.Y).ToString() }
+            });   
         }
     }
 }
