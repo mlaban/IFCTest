@@ -20,7 +20,14 @@ namespace Fds.IFAPI
         [DataMember]
         public ATCMessage[] ATCMessages { get; set; }
     }
-    
+
+    [DataContract]
+    public class TextResponse : APIResponse
+    {
+        [DataMember]
+        public string Text { get; set; }
+    }
+
     [DataContract]
     public class APIWaypoint
     {
@@ -33,7 +40,7 @@ namespace Fds.IFAPI
         [DataMember]
         public string Code { get; set; }
     }
-
+    
     [DataContract]
     public class APIFlightPlan : APIResponse
     {
@@ -278,6 +285,41 @@ namespace Fds.IFAPI
         Full
     }
 
+    [Flags]
+    public enum SpoilerType : int
+    {
+        Unknown,
+        None = 1,
+        Flight = 2,
+        ARM = 4
+    }
+    
+    [DataContract]
+    public class FlapsConfiguration
+    {
+        [DataMember]
+        public float SlatsAngle { get; set; }
+        [DataMember]
+        public float FlapsAngle { get; set; }
+        [DataMember]
+        public string Name { get; set; }
+        [DataMember]
+        public string ShortName { get; set; }
+    }
+
+    [DataContract]
+    public class APIAircraftInfo : APIResponse
+    {
+        [DataMember]
+        public FlapsConfiguration[] FlapsConfiguration { get; set; }
+        [DataMember]
+        public string Name { get; set; }
+        [DataMember]
+        public bool HasAutopilot { get; set; }
+        [DataMember]
+        public SpoilerType SpoilerType { get; set; }
+    }
+    
     [DataContract(Namespace = "")]
     public class APIAircraftState : APIResponse
     {
@@ -351,4 +393,44 @@ namespace Fds.IFAPI
         public float WeightPercentage { get; set; }
     }
 
+    [DataContract]
+    public class WeatherReports : APIResponse
+    {
+        [DataMember]
+        public WeatherReport[] Reports { get; set; }
+    }
+
+    [DataContract]
+    public class WeatherReport
+    {
+        [DataMember]
+        public string ICAO { get; set; }
+        [DataMember]
+        public float Temperature { get; set; }
+        [DataMember]
+        public float DewPoint { get; set; }
+        [DataMember]
+        public short WindDirection { get; set; }
+        [DataMember]
+        public short WindSpeed { get; set; }
+        [DataMember]
+        public short WindGust { get; set; }
+        [DataMember]
+        public float Altimeter { get; set; }
+        [DataMember]
+        public float Visibility { get; set; }
+        [DataMember]
+        public string RawData { get; set; }
+        [DataMember]
+        public DateTime ReportTimeUTC { get; set; }
+        [DataMember]
+        public bool Available { get; set; }
+        [DataMember]
+        public string RawTAF { get; set; }
+
+        public override string ToString()
+        {
+            return RawData;
+        }
+    }
 }

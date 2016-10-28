@@ -3,6 +3,8 @@
 /// 
 
 using Fds.IFAPI;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -22,6 +24,82 @@ using System.Windows.Shapes;
 
 namespace IFCTestApp
 {
+
+    public class Frequency
+    {
+        /// <summary>
+        /// Ex: 118600 for 118.600Mhz
+        /// </summary>
+        public int FrequencyValue { get; set; }
+        /// <summary>
+        /// Name of frequency. Make sure it's synchronized with other places if this frequency is used somewhere else.
+        /// </summary>
+        public string Name { get; set; }
+        /// <summary>
+        /// Optional, used to place a label on a map, when an airspace has different frequencies based on where the airplanes are coming from
+        /// </summary>
+        public double[] Location { get; set; }
+        /// <summary>
+        /// Optional, used to specify where this frequency should be used (ex: coming from NW)
+        /// </summary>
+        public string Description { get; set; }
+    }
+    
+    public class AirspaceDefinition
+    {
+        /// <summary>
+        /// Class A/B/C/D/E/G, SUA, FIR, MOA, TSRA, Prohibited, Restricted, Warning, Alert. Case insensitive
+        /// </summary>
+        public string Type { get; set; }
+        /// <summary>
+        /// Associated frequencies, with value and name
+        /// </summary>
+        public Frequency[] Frequencies { get; set; }
+        /// <summary>
+        /// Associated airport, can be null
+        /// </summary>
+        public string AirportICAO { get; set; }
+        /// <summary>
+        /// Name of airspace (Palo Alto Airport Class D, xxx NAS MOA...)
+        /// </summary>
+        public string Name { get; set; }
+        /// <summary>
+        /// Optional description about the airspace
+        /// </summary>
+        public string Description { get; set; }
+        /// <summary>
+        /// Coordinates of the airspace, if not a circle. Leave empty if it is a circle.
+        /// </summary>
+        public double[][] Coordinates { get; set; }
+        /// <summary>
+        /// Center location of the airspace if it is a circle
+        /// </summary>
+        public double[] CenterLocation { get; set; }
+        /// <summary>
+        /// Radius of the airspace if it is a circle. In Nautical Miles.
+        /// </summary>
+        public double Radius { get; set; }
+        /// <summary>
+        /// Floor of the airspace, in Feet. Inclusive, use 3999 when 4000 is excluded.
+        /// </summary>
+        public double Floor { get; set; }
+        /// <summary>
+        /// Ceiling of the airspace, in Feet. Inclusive, use 4001 when 4000 is excluded.
+        /// </summary>
+        public double Ceiling { get; set; }
+    }
+
+    public class Feature
+    {
+
+    }
+
+    public class FeatureCollection
+    {
+        public Feature[] Features { get; set; }
+    }
+
+
     /// <summary>
     /// Interaction logic for MainWindow.xaml
     /// </summary>
@@ -76,7 +154,7 @@ namespace IFCTestApp
             client.CommandReceived += client_CommandReceived;
 
             client.SendCommand(new APICall { Command = "InfiniteFlight.GetStatus" });
-            client.SendCommand(new APICall { Command = "Live.EnableATCMessageListUpdated" });            
+            client.SendCommand(new APICall { Command = "Live.EnableATCMessageListUpdated" });
 
             Task.Run(() =>
             {
@@ -86,6 +164,8 @@ namespace IFCTestApp
                     try
                     {
                         client.SendCommand(new APICall { Command = "Airplane.GetState" });
+                        //client.SendCommand(new APICall { Command = "Airplane.GetInfo" });
+                        //client.SendCommand(new APICall { Command = "Airplane.GetInfo" });
 
                         Thread.Sleep(2000);
 
@@ -105,7 +185,7 @@ namespace IFCTestApp
                     try
                     {
                         client.SendCommand(new APICall { Command = "Live.GetTraffic" });
-                        client.SendCommand(new APICall { Command = "Live.ATCFacilities" });
+                        client.SendCommand(new APICall { Command = "Live.ATCFacilities" });                        
 
                         Thread.Sleep(5000);
 
@@ -128,70 +208,91 @@ namespace IFCTestApp
         {
             Dispatcher.BeginInvoke((Action)(() => 
             {
-                var type = Type.GetType(e.Response.Type);
-
-                if (type == typeof(APIAircraftState))
+                if (e.Response != null)
                 {
-                    var state = Serializer.DeserializeJson<APIAircraftState>(e.CommandString);
+                    var type = Type.GetType(e.Response.Type);
 
-                    airplaneStateGrid.DataContext = null;
-                    airplaneStateGrid.DataContext = state;
-                }
-                else if (type == typeof(GetValueResponse))
-                {
-                    var state = Serializer.DeserializeJson<GetValueResponse>(e.CommandString);
-
-                    Console.WriteLine("{0} -> {1}", state.Parameters[0].Name, state.Parameters[0].Value);
-                }
-                else if (type == typeof(LiveAirplaneList))
-                {
-                    var airplaneList = Serializer.DeserializeJson<LiveAirplaneList>(e.CommandString);
-
-                    airplaneDataGrid.ItemsSource = airplaneList.Airplanes;
-                }
-                else if (type == typeof(FacilityList))
-                {
-                    var facilityList = Serializer.DeserializeJson<FacilityList>(e.CommandString);
-
-                    facilitiesDataGrid.ItemsSource = facilityList.Facilities;
-                }
-                else if (type == typeof(IFAPIStatus))
-                {
-                    var status = Serializer.DeserializeJson<IFAPIStatus>(e.CommandString);
-
-                    versionTextBlock.Text = status.AppVersion;
-                    userNameTextBlock.Text = status.LoggedInUser;
-                    deviceNameTextBlock.Text = status.DeviceName;
-                    displayResolutionTextBlock.Text = string.Format("{0}x{1}", status.DisplayWidth, status.DisplayHeight);
-                }
-                else if (type == typeof(APIATCMessage))
-                {
-                    var msg = Serializer.DeserializeJson<APIATCMessage>(e.CommandString);
-
-                    atcMessagesListBox.Items.Add(msg.Message);
-
-                    client.ExecuteCommand("Live.GetCurrentCOMFrequencies");
-                }
-                else if (type == typeof(APIFrequencyInfoList))
-                {
-                    var msg = Serializer.DeserializeJson<APIFrequencyInfoList>(e.CommandString);
-                    frequenciesDataGrid.ItemsSource = msg.Frequencies;
-                }
-                else if (type == typeof(ATCMessageList))
-                {
-                    var msg = Serializer.DeserializeJson<ATCMessageList>(e.CommandString);
-                    atcMessagesDataGrid.ItemsSource = msg.ATCMessages;
-                }
-                else if (type == typeof(APIFlightPlan))
-                {
-                    var msg = Serializer.DeserializeJson<APIFlightPlan>(e.CommandString);
-                    Console.WriteLine("Flight Plan: {0} items", msg.Waypoints.Length);
-
-                    foreach (var item in msg.Waypoints)
+                    if (type == typeof(APIAircraftState))
                     {
-                        Console.WriteLine(" -> {0} {1} - {2}, {3}", item.Name, item.Code, item.Latitude, item.Longitude);
+                        var state = Serializer.DeserializeJson<APIAircraftState>(e.CommandString);
+
+                        string jsonFormatted = JValue.Parse(e.CommandString).ToString(Formatting.Indented);
+                        rawAircraftStateTextBlock.Text = jsonFormatted;
+                        
+                        airplaneStateGrid.DataContext = null;
+                        airplaneStateGrid.DataContext = state;
                     }
-                }             
+                    else if (type == typeof(APIAircraftInfo))
+                    {
+                        var state = Serializer.DeserializeJson<APIAircraftInfo>(e.CommandString);
+                    }
+                    else if (type == typeof(GetValueResponse))
+                    {
+                        var state = Serializer.DeserializeJson<GetValueResponse>(e.CommandString);
+
+                        Console.WriteLine("{0} -> {1}", state.Parameters[0].Name, state.Parameters[0].Value);
+                    }
+                    else if (type == typeof(LiveAirplaneList))
+                    {
+                        var airplaneList = Serializer.DeserializeJson<LiveAirplaneList>(e.CommandString);
+
+                        airplaneDataGrid.ItemsSource = airplaneList.Airplanes;
+                    }
+                    else if (type == typeof(FacilityList))
+                    {
+                        var facilityList = Serializer.DeserializeJson<FacilityList>(e.CommandString);
+
+                        facilitiesDataGrid.ItemsSource = facilityList.Facilities;
+                    }
+                    else if (type == typeof(IFAPIStatus))
+                    {
+                        var status = Serializer.DeserializeJson<IFAPIStatus>(e.CommandString);
+
+                        versionTextBlock.Text = status.AppVersion;
+                        userNameTextBlock.Text = status.LoggedInUser;
+                        deviceNameTextBlock.Text = status.DeviceName;
+                        displayResolutionTextBlock.Text = string.Format("{0}x{1}", status.DisplayWidth, status.DisplayHeight);
+                    }
+                    else if (type == typeof(APIATCMessage))
+                    {
+                        var msg = Serializer.DeserializeJson<APIATCMessage>(e.CommandString);
+
+                        atcMessagesListBox.Items.Add(msg.Message);
+
+                        client.ExecuteCommand("Live.GetCurrentCOMFrequencies");
+                    }
+                    else if (type == typeof(APIFrequencyInfoList))
+                    {
+                        var msg = Serializer.DeserializeJson<APIFrequencyInfoList>(e.CommandString);
+                        frequenciesDataGrid.ItemsSource = msg.Frequencies;
+                    }
+                    else if (type == typeof(ATCMessageList))
+                    {
+                        var msg = Serializer.DeserializeJson<ATCMessageList>(e.CommandString);
+                        atcMessagesDataGrid.ItemsSource = msg.ATCMessages;
+                    }
+                    else if (type == typeof(WeatherReports))
+                    {
+                        var msg = Serializer.DeserializeJson<WeatherReports>(e.CommandString);
+
+                        weatherListbox.ItemsSource = msg.Reports;
+                    }
+                    else if (type == typeof(APIFlightPlan))
+                    {
+                        var msg = Serializer.DeserializeJson<APIFlightPlan>(e.CommandString);
+                        Console.WriteLine("Flight Plan: {0} items", msg.Waypoints.Length);
+
+                        foreach (var item in msg.Waypoints)
+                        {
+                            Console.WriteLine(" -> {0} {1} - {2}, {3}", item.Name, item.Code, item.Latitude, item.Longitude);
+                        }
+                    }
+                    else if (type == typeof(TextResponse))
+                    {
+                        var msg = Serializer.DeserializeJson<TextResponse>(e.CommandString);
+                        AddLogText(msg.Text);
+                    }
+                }
             }));            
         }
 
@@ -259,7 +360,7 @@ namespace IFCTestApp
 
         private void getFplButton_Click(object sender, RoutedEventArgs e)
         {
-            client.ExecuteCommand("FlightPlan.GetFlightPlan");
+            client.ExecuteCommand("Commands.FlightPlan.GetFlightPlan");
         }
 
         private void aileronsSlider_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
@@ -451,9 +552,9 @@ namespace IFCTestApp
             
             client.ExecuteCommand(command, new CallParameter[]
             {
-                new CallParameter { Name = "Latitude", Value = "33.950681" }, 
-                new CallParameter { Name = "Longitude", Value = "-118.401479" },
-                new CallParameter { Name = "Altitude", Value = "-110" }
+                new CallParameter { Name = "Latitude", Value = "39.22721988" }, 
+                new CallParameter { Name = "Longitude", Value = "-106.86908685" },
+                new CallParameter { Name = "Altitude", Value = "2418" }
             });    
         }
 
@@ -503,6 +604,79 @@ namespace IFCTestApp
                 new CallParameter { Name = "X", Value = ((int)position.X).ToString() }, 
                 new CallParameter { Name = "Y", Value = ((int)position.Y).ToString() }
             });   
+        }
+
+        private void downloadWeatherButton_Click(object sender, RoutedEventArgs e)
+        {
+            var command = "Live.GetWeather";
+
+            client.ExecuteCommand(command, new CallParameter[]
+            {
+                new CallParameter { Name = "Airport", Value = "KPAO" }, 
+                new CallParameter { Name = "Airport", Value = "KLAX" }, 
+                new CallParameter { Name = "Airport", Value = "LFPG" }, 
+                new CallParameter { Name = "Airport", Value = "KKKK" }, 
+                new CallParameter { Name = "Airport", Value = "KJFK" }, 
+                new CallParameter { Name = "Airport", Value = "EDDL" }, 
+            });
+        }
+
+        private void sendCommandButton_Click(object sender, RoutedEventArgs e)
+        {
+            //commandTextBlock.Text
+
+            var items = commandTextBlock.Text.Split(' ');
+            var parameters = new List<CallParameter>();
+            var paramCount = items.Length - 1;
+
+            if (items.Any())
+            {
+                var commandName = items[0];
+
+                for (int i = 1; i < paramCount + 1; i++)
+                {
+                    var parameterItems = items[i].Split('=');
+
+                    if (parameterItems.Length == 2)
+                    {
+                        parameters.Add(new CallParameter { Name = parameterItems[0], Value = parameterItems[1] });
+                    }
+                    else if (parameterItems.Length == 1)
+                    {
+                        parameters.Add(new CallParameter { Value = parameterItems[0] });
+                    }
+                }
+                client.ExecuteCommand(commandName, parameters.ToArray());
+            }
+
+            AddLogText("> " + commandTextBlock.Text);
+
+            commandTextBlock.Text = string.Empty;            
+        }
+
+        private void AddLogText(string p)
+        {
+            logTextBlock.Text += p + Environment.NewLine;
+        }
+
+        private void Slider_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
+        {
+            client.ExecuteCommand("infiniteflight.timescale", new CallParameter[] { new CallParameter { Value = timeScaleSlider.Value.ToString() } } );
+        }
+
+        private void awayModeCheckBox_Checked(object sender, RoutedEventArgs e)
+        {
+            UpdatePowerState();
+        }
+
+        private void UpdatePowerState()
+        {
+            client.ExecuteCommand("infiniteflight.state", new CallParameter[] { new CallParameter { Value = awayModeCheckBox.IsChecked.Value ? "away" : "active" } });
+        }
+
+        private void awayModeCheckBox_Unchecked(object sender, RoutedEventArgs e)
+        {
+            UpdatePowerState();
         }
     }
 }

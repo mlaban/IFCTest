@@ -25,7 +25,6 @@ namespace IFCTestApp
 
             try
             {
-
                 client.Connect(host, port);
                 client.NoDelay = true;
 
@@ -36,18 +35,17 @@ namespace IFCTestApp
 
                     while (true)
                     {
+                        string commandString = string.Empty;
                         try
                         {
-                            var commandString = ReadCommand();
+                            commandString = ReadCommand();
                             //Console.WriteLine("Reply from Server: {0}", commandString);
                             var response = Serializer.DeserializeJson<APIResponse>(commandString);
 
                             CommandReceived(this, new CommandReceivedEventArgs(response, commandString));
-
                         }
                         catch (Exception ex)
                         {
-
                         }
                     }
                 });
@@ -85,7 +83,7 @@ namespace IFCTestApp
                 });
 
             }
-            catch (System.Net.Sockets.SocketException e)
+           catch (System.Net.Sockets.SocketException e)
             {
 
                 Console.WriteLine("Caught exception: {0}", e);
