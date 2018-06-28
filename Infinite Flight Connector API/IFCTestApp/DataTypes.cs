@@ -76,7 +76,7 @@ namespace Fds.IFAPI
     public class APIServerInfo
     {
         [DataMember]
-        public string Address { get; set; }
+        public string[] Addresses { get; set; }
         [DataMember]
         public int Port { get; set; }
     }

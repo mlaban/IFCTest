@@ -33,6 +33,9 @@
                         <Slider x:Name="autopilotHeadingSlider" Maximum="360" ValueChanged="autopilotHeadingSlider_ValueChanged" Margin="2"/>
                         <Label Content="Flaps" HorizontalAlignment="Center"/>
                         <Slider x:Name="flapsSlider" Maximum="10" Margin="2" TickPlacement="TopLeft" ValueChanged="flapsSlider_ValueChanged" IsSnapToTickEnabled="True"/>
+                        <Button x:Name="toggleHudButton" Content="HUD" Margin="5" Click="toggleHudButton_Click"/>
+                        <Button x:Name="reverseThrustButton" Content="Reverse Thrust" Margin="5" MouseLeftButtonDown="reverseThrustButton_MouseLeftButtonDown" MouseLeftButtonUp="reverseThrustButton_MouseLeftButtonUp"/>
+                        <Button x:Name="forceCameraButton" Content="Force Camera" Margin="5" Click="forceCameraButton_Click"/>
                     </StackPanel>
                     <Grid x:Name="airplaneStateGrid" HorizontalAlignment="Left" Height="205" Grid.Row="1" VerticalAlignment="Top" Width="258" Grid.ColumnSpan="2">
                         <Grid.RowDefinitions>

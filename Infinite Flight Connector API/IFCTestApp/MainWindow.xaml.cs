@@ -128,12 +128,13 @@ namespace IFCTestApp
 
             if (apiServerInfo != null)
             {
-                Console.WriteLine("Received Server Info from: {0}:{1}", apiServerInfo.Address, apiServerInfo.Port);
+                Console.WriteLine("Received Server Info from: {0}:{1}", apiServerInfo.Addresses[0], apiServerInfo.Port);
                 serverInfoReceived = true;
                 receiver.Stop();
                 Dispatcher.BeginInvoke((Action)(() => 
                 {
-                    Connect(IPAddress.Parse(apiServerInfo.Address), apiServerInfo.Port);
+                    var ip = IPAddress.Parse(apiServerInfo.Addresses.Where(x=> !x.Contains(":")).FirstOrDefault());
+                    Connect(ip, apiServerInfo.Port);
                 }));
             }
             else
@@ -677,6 +678,26 @@ namespace IFCTestApp
         private void awayModeCheckBox_Unchecked(object sender, RoutedEventArgs e)
         {
             UpdatePowerState();
+        }
+
+        private void toggleHudButton_Click(object sender, RoutedEventArgs e)
+        {
+            client.ExecuteCommand("Commands.ToggleHUD");
+        }
+        
+        private void forceCameraButton_Click(object sender, RoutedEventArgs e)
+        {
+            client.ExecuteCommand("Commands.SetFollowCameraCommand");
+        }
+        
+        private void reverseThrustButton_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
+        {
+            client.ExecuteCommand("Commands.ReverseThrust", new CallParameter[] { new CallParameter { Name = "KeyAction", Value = "Down" } });
+        }
+
+        private void reverseThrustButton_MouseLeftButtonUp(object sender, MouseButtonEventArgs e)
+        {
+            client.ExecuteCommand("Commands.ReverseThrust", new CallParameter[] { new CallParameter { Name = "KeyAction", Value = "Up" } });
         }
     }
 }
